@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0F172A">
+<title>Fifteen Minutes, One Samosa — Iteration 2 MVP</title>
+<style>
+:root{
+  --navy:#0F172A;--navy2:#1E293B;--amber:#D97706;--amber2:#F59E0B;
+  --green:#15803D;--green-bg:#DCFCE7;--wait:#B45309;--wait-bg:#FEF3C7;
+  --red:#B91C1C;--red-bg:#FEE2E2;--paper:#F8FAFC;--white:#FFFFFF;
+  --line:#E2E8F0;--ink:#172033;--muted:#64748B;--shadow:0 14px 38px rgba(15,23,42,.08);
+  font-synthesis:none;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;font-size:14px}
+button,input,select{font:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #FBBF24;outline-offset:2px}
+.appbar{position:sticky;top:0;z-index:20;background:var(--navy);color:white;box-shadow:0 5px 22px #0f172a25}
+.appbar-inner{max-width:1240px;margin:auto;padding:13px 22px 0}
+.brandline{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:12px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.logo{width:43px;height:43px;border-radius:14px;background:var(--amber);display:grid;place-items:center;color:white;font-weight:950;font-size:16px;letter-spacing:-1px;box-shadow:inset 0 1px 0 #ffffff55}
+.brand h1{font-size:clamp(15px,2.4vw,21px);line-height:1.15;margin:0;font-weight:850;letter-spacing:-.4px}
+.brand p{margin:4px 0 0;color:#CBD5E1;font-size:11px;letter-spacing:.02em}
+.rush-badge{display:flex;align-items:center;gap:8px;border:1px solid #475569;background:#1E293B;color:#FDE68A;padding:9px 12px;border-radius:999px;font-size:11px;font-weight:850;white-space:nowrap}
+.rush-dot{width:7px;height:7px;border-radius:50%;background:#FBBF24;box-shadow:0 0 0 4px #fbbf2422}
+.tabs-wrap{display:flex;justify-content:center}
+.tabs{display:flex;gap:5px;width:min(100%,600px);padding:5px 5px 0;background:#1E293B;border-radius:13px 13px 0 0}
+.tab{flex:1;border:0;background:transparent;color:#CBD5E1;padding:12px 8px 13px;border-radius:9px 9px 0 0;font-size:12px;font-weight:800;transition:.18s}
+.tab:hover{color:white;background:#334155}
+.tab.active{background:var(--paper);color:var(--navy);box-shadow:0 -2px 0 var(--amber) inset}
+main{max-width:1240px;margin:0 auto;padding:25px 22px 34px;min-height:calc(100vh - 155px)}
+.view{display:none;animation:fadeUp .24s ease}
+.view.active{display:block}
+@keyframes fadeUp{from{opacity:.45;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.page-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:19px}
+.kicker{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);font-weight:950;margin-bottom:6px}
+h2{font-size:clamp(22px,3vw,29px);letter-spacing:-.8px;line-height:1.1;color:var(--navy);margin:0;font-weight:900}
+h3{color:var(--navy);font-size:16px;margin:0;font-weight:850}
+.muted{color:var(--muted)}
+.sub{color:var(--muted);font-size:12px;line-height:1.5;margin:7px 0 0}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 10px;font-size:10px;line-height:1;font-weight:900;white-space:nowrap}
+.pill.ready{color:#166534;background:var(--green-bg)}
+.pill.wait{color:#92400E;background:var(--wait-bg)}
+.pill.sold{color:#991B1B;background:var(--red-bg)}
+.pill.neutral{color:#334155;background:#E2E8F0}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.layout{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(310px,.8fr);gap:18px;align-items:start}
+.stack{display:grid;gap:16px}
+.card{background:var(--white);border:1px solid var(--line);border-radius:19px;padding:19px;box-shadow:var(--shadow)}
+.card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:15px}
+.card-head .sub{margin-top:5px}
+.menu{display:grid;gap:10px}
+.menu-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:15px;padding:13px 14px;transition:border-color .18s,transform .18s,box-shadow .18s}
+.menu-item:hover{border-color:#CBD5E1;box-shadow:0 6px 18px #0f172a0a;transform:translateY(-1px)}
+.item-name{font-weight:850;color:var(--navy);font-size:14px}
+.item-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px}
+.stock-copy{font-size:11px;color:var(--muted)}
+.item-price{font-size:16px;font-weight:900;color:var(--navy);font-variant-numeric:tabular-nums;margin-top:7px}
+.stepper{display:flex;align-items:center;gap:9px}
+.stepper button{width:42px;height:42px;border:0;border-radius:12px;background:var(--navy);color:white;font-size:23px;font-weight:700;display:grid;place-items:center;box-shadow:0 3px 0 #020617;transition:transform .12s,background .12s}
+.stepper button:active{transform:translateY(2px);box-shadow:0 1px 0 #020617}
+.stepper button:disabled{background:#CBD5E1;color:#64748B;box-shadow:none;cursor:not-allowed}
+.qty{min-width:18px;text-align:center;font-weight:900;font-size:14px;font-variant-numeric:tabular-nums}
+.cart-card{position:static}
+.cart-empty{border:1px dashed #CBD5E1;border-radius:13px;padding:18px;text-align:center;color:var(--muted);font-size:12px;line-height:1.5}
+.cart-line,.receipt-line{display:flex;justify-content:space-between;gap:12px;padding:8px 0;font-size:12px}
+.cart-line strong,.receipt-line strong{font-variant-numeric:tabular-nums}
+.cart-total{border-top:1px solid var(--line);padding-top:13px;margin-top:6px;font-size:16px;font-weight:950;color:var(--navy)}
+.cart-total strong{font-variant-numeric:tabular-nums}
+.checkout-bar{position:static;z-index:auto;margin-top:15px;padding:9px;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 6px 18px #0f172a0d}
+.primary{width:100%;border:0;border-radius:12px;background:var(--amber);color:white;padding:15px 16px;font-size:13px;font-weight:950;letter-spacing:.01em;box-shadow:0 3px 0 #92400E;transition:transform .12s,background .15s}
+.primary:hover{background:#B45309}
+.primary:active{transform:translateY(2px);box-shadow:0 1px 0 #92400E}
+.primary:disabled{background:#CBD5E1;color:#64748B;box-shadow:none;cursor:not-allowed}
+.small-note{font-size:10px;color:var(--muted);line-height:1.45;margin:9px 2px 0}
+.token-card{overflow:hidden}
+.token-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.token-number{font-size:36px;letter-spacing:-1.8px;font-weight:950;color:var(--navy);font-variant-numeric:tabular-nums;margin:8px 0 3px}
+.token-status{display:inline-flex;align-items:center;gap:7px;padding:8px 11px;border-radius:999px;font-size:10px;font-weight:950;letter-spacing:.04em;background:var(--wait-bg);color:#92400E}
+.token-status.ready{background:var(--green-bg);color:#166534}
+.progress{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:20px 0 16px;position:relative}
+.progress-step{text-align:center;position:relative;color:#94A3B8;font-size:10px;font-weight:850}
+.progress-step:before{content:"";display:block;height:4px;border-radius:99px;background:#E2E8F0;margin:0 0 9px}
+.progress-step.done:before{background:var(--green)}
+.progress-step.current:before{background:var(--amber)}
+.progress-step span{display:block;margin-bottom:4px;font-size:9px;letter-spacing:.04em}
+.pickup-banner{background:var(--wait);color:white;border-radius:15px;padding:16px;margin:13px 0 14px;transition:background .2s}
+.pickup-banner.ready{background:var(--green)}
+.pickup-banner strong{display:block;font-size:clamp(14px,2vw,18px);line-height:1.3;font-weight:950;letter-spacing:-.2px}
+.pickup-banner small{display:block;font-size:10px;line-height:1.5;color:#FFFFFFE8;margin-top:6px}
+.demo-toggle{border:1px solid #CBD5E1;background:#F8FAFC;color:var(--navy);padding:9px 12px;border-radius:999px;font-size:10px;font-weight:900;transition:.15s}
+.demo-toggle:hover{border-color:var(--amber);background:#FFFBEB}
+.receipt{background:#F8FAFC;border:1px solid var(--line);border-radius:13px;padding:13px;margin-top:14px}
+.receipt-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.receipt-title strong{font-size:12px;color:var(--navy)}
+.receipt-total{border-top:1px dashed #CBD5E1;margin-top:5px;padding-top:10px;font-size:14px;font-weight:950;color:var(--navy)}
+.receipt-total strong{font-variant-numeric:tabular-nums}
+.token-empty{padding:22px 12px;text-align:center;border:1px dashed #CBD5E1;border-radius:14px;color:var(--muted);font-size:12px;line-height:1.5}
+.board-shell{background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:var(--shadow)}
+.board-hero{background:var(--navy);color:white;padding:25px 26px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.board-hero h2{color:white;font-size:clamp(26px,4vw,38px)}
+.board-hero p{color:#CBD5E1;margin:8px 0 0;font-size:12px}
+.board-hero .primary{width:auto;white-space:nowrap;padding:13px 18px;background:var(--amber2);color:#1F2937;box-shadow:0 3px 0 #92400E}
+.board-controls{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 22px;border-bottom:1px solid var(--line)}
+.switch-label{display:flex;align-items:center;gap:10px;font-size:12px;font-weight:850;color:var(--navy);cursor:pointer}
+.switch-label input{position:absolute;opacity:0;width:1px;height:1px}
+.switch{width:42px;height:24px;border-radius:99px;background:#CBD5E1;padding:3px;transition:.18s;flex-shrink:0}
+.switch:after{content:"";display:block;width:18px;height:18px;background:white;border-radius:50%;box-shadow:0 1px 3px #0002;transition:.18s}
+.switch-label input:checked+.switch{background:var(--green)}
+.switch-label input:checked+.switch:after{transform:translateX(18px)}
+.board-caption{font-size:10px;color:var(--muted);font-weight:750}
+.board-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:17px}
+.board-item{border:1px solid var(--line);border-radius:16px;padding:16px;min-height:150px;display:flex;flex-direction:column;justify-content:space-between;transition:.18s}
+.board-item:hover{transform:translateY(-2px);box-shadow:0 8px 20px #0f172a0d}
+.board-item h3{font-size:14px;line-height:1.3}
+.board-price{font-size:25px;font-weight:950;color:var(--navy);font-variant-numeric:tabular-nums;margin:15px 0 5px}
+.board-stock{font-size:10px;color:var(--muted);margin-top:6px}
+.board-footer{background:#F8FAFC;border-top:1px solid var(--line);padding:12px 20px;display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:10px}
+.staff-layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr);gap:18px}
+.staff-item{display:grid;grid-template-columns:minmax(0,1fr) 145px 112px;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.staff-item:last-child{border:0;padding-bottom:0}
+.staff-name{font-size:13px;font-weight:900;color:var(--navy)}
+.staff-desc{font-size:10px;color:var(--muted);margin-top:4px}
+.field-label{display:block;font-size:9px;color:var(--muted);font-weight:850;text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+.staff-item select{width:100%;border:1px solid #CBD5E1;background:#fff;border-radius:9px;padding:9px 8px;font-size:11px;color:var(--navy);font-weight:750}
+.stock-stepper{display:flex;align-items:center;gap:7px}
+.stock-stepper button{width:29px;height:29px;border:1px solid var(--line);background:#F8FAFC;border-radius:8px;color:var(--navy);font-weight:900}
+.stock-stepper strong{min-width:18px;text-align:center;font-variant-numeric:tabular-nums;font-size:12px}
+.queue-item{border:1px solid var(--line);border-radius:13px;padding:13px;margin-top:11px}
+.queue-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.queue-head strong{color:var(--navy);font-size:12px}
+.queue-item p{font-size:10px;color:var(--muted);line-height:1.5;margin:8px 0 0}
+.secondary{width:100%;border:1px solid #CBD5E1;background:#F8FAFC;color:var(--navy);padding:12px;border-radius:11px;font-size:11px;font-weight:900}
+.secondary:hover{background:#FFFBEB;border-color:#FCD34D}
+.staff-token-status{margin:12px 0 10px}
+.footer{max-width:1240px;margin:0 auto;padding:0 20px 22px;text-align:center;color:#94A3B8;font-size:10px;line-height:1.6}
+.toast{position:fixed;left:50%;bottom:22px;z-index:50;transform:translate(-50%,18px);opacity:0;pointer-events:none;background:var(--navy);color:white;border:1px solid #334155;padding:12px 16px;border-radius:12px;box-shadow:0 10px 30px #0f172a35;font-size:11px;font-weight:800;transition:.22s;max-width:calc(100vw - 30px);text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.pay-overlay{position:fixed;inset:0;z-index:60;background:#0f172a99;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.pay-overlay.show{display:flex}
+.pay-modal{background:white;border-radius:22px;padding:28px;width:min(100%,340px);text-align:center;box-shadow:0 25px 80px #0004;animation:pop .25s ease}
+@keyframes pop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+.pay-spinner{width:52px;height:52px;border-radius:50%;border:4px solid #DCFCE7;border-top-color:var(--green);margin:0 auto 15px;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pay-check{width:52px;height:52px;border-radius:50%;background:var(--green-bg);color:var(--green);display:grid;place-items:center;font-size:27px;font-weight:900;margin:0 auto 15px}
+.pay-modal h3{font-size:18px;margin-bottom:6px}
+.pay-modal p{font-size:11px;color:var(--muted);margin:0}
+@media(max-width:900px){.layout,.staff-layout{grid-template-columns:1fr}.cart-card{position:static}.board-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){
+ .appbar-inner{padding:11px 12px 0}.brandline{align-items:flex-start}.logo{width:38px;height:38px;border-radius:12px}.brand h1{font-size:15px;max-width:220px}.brand p{font-size:9px}.rush-badge{font-size:9px;padding:8px 9px;gap:5px}
+ .tab{font-size:10px;padding:11px 4px 12px}.tabs{gap:2px}
+ main{padding:18px 12px 25px}.page-heading{align-items:flex-start;flex-direction:column}.card{padding:15px;border-radius:16px}
+ .board-hero{padding:21px 17px;align-items:flex-start;flex-direction:column}.board-hero .primary{width:100%}.board-controls{padding:13px 15px;align-items:flex-start;flex-direction:column}.board-grid{padding:12px;gap:9px}.board-item{padding:12px;min-height:140px}.board-item h3{font-size:12px}.board-price{font-size:21px}
+ .staff-item{grid-template-columns:minmax(0,1fr) 120px;gap:9px}.staff-item>div:first-child{grid-column:1/-1}.staff-item select{font-size:10px}.stock-stepper{justify-content:flex-start}
+ .footer{padding:0 12px 18px;font-size:9px}
+}
+@media(max-width:370px){.rush-badge{max-width:115px;white-space:normal;line-height:1.25}.menu-item{padding:11px}.stepper{gap:6px}.stepper button{width:40px;height:40px}.board-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header class="appbar">
+ <div class="appbar-inner">
+  <div class="brandline">
+   <div class="brand"><div class="logo">15′</div><div><h1>Fifteen Minutes, One Samosa</h1><p>Campus Canteen Express · Project P20</p></div></div>
+   <div class="rush-badge"><span class="rush-dot"></span>Break Rush Window: 12:45–1:00 PM</div>
+  </div>
+  <div class="tabs-wrap"><nav class="tabs" aria-label="Application sections">
+   <button class="tab active" data-tab="student">Student Flow</button>
+   <button class="tab" data-tab="board">Entrance Board</button>
+   <button class="tab" data-tab="staff">Staff View</button>
+  </nav></div>
+ </div>
+</header>
+
+<main>
+<section class="view active" id="student">
+ <div class="page-heading">
+  <div><div class="kicker">Express ordering · Student</div><h2>Skip the queue. Grab your break.</h2><p class="sub">Choose Ready Now items, pay once, and collect at the express window.</p></div>
+  <span class="pill ready"><span class="dot"></span>Express pickup active</span>
+ </div>
+ <div class="layout">
+  <div class="card">
+   <div class="card-head"><div><h3>Today’s quick picks</h3><p class="sub">Live availability · LPU campus canteen</p></div><span class="pill neutral">4 menu items</span></div>
+   <div class="menu" id="studentMenu"></div>
+  </div>
+  <aside class="stack">
+   <div class="card cart-card">
+    <div class="card-head"><div><div class="kicker">Your cart</div><h3>Ready when you are</h3></div><span class="pill neutral" id="cartCount">0 items</span></div>
+    <div id="cartContents"><div class="cart-empty">Your cart is empty.<br>Add a Ready Now snack to get started.</div></div>
+    <div class="checkout-bar"><button class="primary" id="checkout" disabled>Proceed to 1-Tap UPI Pay (₹0)</button><p class="small-note">Demo payment only. No real money is charged. Confirmation is simulated in 0.8 seconds.</p></div>
+   </div>
+   <div class="card token-card">
+    <div class="card-head"><div><div class="kicker">Live order tracking</div><h3>Your pickup token</h3></div><span class="pill neutral">Express Window 2</span></div>
+    <div id="tokenEmpty" class="token-empty">Your digital receipt and Token #A-14 will appear here after checkout.</div>
+    <div id="tokenDetails" class="hidden">
+     <div class="token-top"><div><div class="muted" style="font-size:10px;font-weight:800">YOUR TOKEN NUMBER</div><div class="token-number">#A-14</div></div><div id="tokenStatus" class="token-status">● PREPARING</div></div>
+     <div class="progress" id="progress">
+      <div class="progress-step done"><span>1.</span>Ordered</div>
+      <div class="progress-step current"><span>2.</span>Preparing</div>
+      <div class="progress-step"><span>3.</span>READY</div>
+     </div>
+     <div class="pickup-banner" id="pickupBanner"><strong>ORDER CONFIRMED — PREPARING</strong><small>Your order will be called when it is ready. Please wait for the green status.</small></div>
+     <button class="demo-toggle" id="studentToggle">Demo: Toggle Preparing / READY</button>
+     <div class="receipt">
+      <div class="receipt-title"><strong>Digital payment receipt</strong><span class="pill ready">UPI PAID</span></div>
+      <div id="receiptLines"></div>
+      <div class="receipt-line receipt-total"><span>Total paid via UPI</span><strong id="receiptTotal">₹0</strong></div>
+     </div>
+    </div>
+   </div>
+  </aside>
+ </div>
+</section>
+
+<section class="view" id="board">
+ <div class="board-shell">
+  <div class="board-hero">
+   <div><div class="kicker" style="color:#FBBF24">LPU campus canteen · entrance display</div><h2>Check Live Stock First</h2><p>Know what’s ready before you join the express pickup queue.</p></div>
+   <button class="primary" id="goOrder">Order Ready Items Now →</button>
+  </div>
+  <div class="board-controls">
+   <label class="switch-label"><input type="checkbox" id="readyFilter"><span class="switch"></span>Show Ready Now Items Only</label>
+   <span class="board-caption" id="boardCount">4 items listed · Live stock</span>
+  </div>
+  <div class="board-grid" id="boardGrid"></div>
+  <div class="board-footer"><span>Express pickup · Window 2, Right Counter</span><span>Availability updates live from Staff View</span></div>
+ </div>
+</section>
+
+<section class="view" id="staff">
+ <div class="page-heading">
+  <div><div class="kicker">Counter operator console</div><h2>Stock &amp; kitchen control</h2><p class="sub">Update availability and order readiness. Student Flow and Entrance Board sync instantly.</p></div>
+  <span class="pill ready"><span class="dot"></span>Live controls</span>
+ </div>
+ <div class="staff-layout">
+  <div class="card">
+   <div class="card-head"><div><h3>Live stock management</h3><p class="sub">Change status or adjust available stock.</p></div><span class="pill neutral">4 products</span></div>
+   <div id="staffStock"></div>
+  </div>
+  <aside class="stack">
+   <div class="card">
+    <div class="kicker">Kitchen readiness</div><h3>Token #A-14 · Express order</h3>
+    <div id="staffTokenStatus" class="token-status staff-token-status">● PREPARING</div>
+    <button class="demo-toggle" id="staffToggle">Demo: Toggle Preparing / READY</button>
+    <div class="pickup-banner" id="staffPickupBanner" style="margin-top:13px"><strong>ORDER IN PREPARATION</strong><small>When ready, the student will be directed to Window 2 — Right Counter.</small></div>
+   </div>
+   <div class="card">
+    <div class="kicker">Express queue</div><h3>Active pickup orders</h3>
+    <div class="queue-item"><div class="queue-head"><strong>#A-14 · Window 2</strong><span id="queueBadge" class="pill wait">PREPARING</span></div><p id="staffOrderSummary">Waiting for a student checkout in this demo session.</p></div>
+    <div class="queue-item"><div class="queue-head"><strong>#A-12 · Window 1</strong><span class="pill ready">READY</span></div><p>Sample queue entry · Masala Tea</p></div>
+    <button class="secondary" id="markCollected" style="margin-top:12px">Mark Token #A-14 Collected</button>
+   </div>
+  </aside>
+ </div>
+</section>
+</main>
+<footer class="footer">INT335 Design Thinking | Project P20: Fifteen Minutes, One Samosa (Iteration 2 Final MVP) | Manav Singh (Section K3P26YG)</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="pay-overlay" id="payOverlay" aria-hidden="true">
+ <div class="pay-modal"><div id="payVisual" class="pay-spinner"></div><h3 id="payTitle">Connecting to UPI…</h3><p id="payMessage">Please wait while we confirm your demo payment.</p></div>
+</div>
+
+<script>
+"use strict";
+const products=[
+ {id:"samosa",name:"Hot Samosa (2 pcs)",price:15,stock:12,status:"ready"},
+ {id:"tea",name:"Masala Tea",price:12,stock:null,status:"ready"},
+ {id:"patty",name:"Aloo Patty",price:20,stock:0,status:"sold"},
+ {id:"sandwich",name:"Grilled Veg Sandwich",price:35,stock:6,status:"wait"}
+];
+let cart={},orderPlaced=false,kitchenReady=false,collected=false,paymentBusy=false;
+const $=id=>document.getElementById(id);
+const money=n=>"₹"+Number(n).toFixed(2).replace(/\.00$/,"");
+function statusMeta(status){
+ if(status==="ready")return {label:"Ready Now",cls:"ready"};
+ if(status==="wait")return {label:"5 Min Wait",cls:"wait"};
+ return {label:"Sold Out",cls:"sold"};
+}
+function showToast(message){
+ const node=$("toast");node.textContent=message;node.classList.add("show");
+ clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>node.classList.remove("show"),2300);
+}
+function goTo(tab){
+ document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));
+ document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===tab));
+ window.scrollTo({top:0,behavior:"smooth"});renderAll();
+}
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>goTo(b.dataset.tab)));
+$("goOrder").addEventListener("click",()=>goTo("student"));
+function stockText(item){return item.stock===null?"Available":item.stock+" left";}
+function setQuantity(id,delta){
+ const p=products.find(x=>x.id===id);if(!p||p.status!=="ready")return;
+ const max=p.stock===null?99:p.stock;const next=Math.max(0,Math.min(max,(cart[id]||0)+delta));
+ if(next)cart[id]=next;else delete cart[id];renderAll();
+}
+function renderStudentMenu(){
+ $("studentMenu").innerHTML=products.map(p=>{
+  const st=statusMeta(p.status),qty=cart[p.id]||0;
+  const cannotAdd=p.status!=="ready"||(p.stock!==null&&qty>=p.stock);
+  return `<article class="menu-item"><div><div class="item-name">${p.name}</div><div class="item-meta"><span class="pill ${st.cls}"><span class="dot"></span>${st.label}</span><span class="stock-copy">${stockText(p)}</span></div><div class="item-price">${money(p.price)}</div></div><div class="stepper"><button type="button" aria-label="Remove one ${p.name}" ${qty===0?"disabled":""} onclick="setQuantity('${p.id}',-1)">−</button><span class="qty">${qty}</span><button type="button" aria-label="Add one ${p.name}" ${cannotAdd?"disabled":""} onclick="setQuantity('${p.id}',1)">+</button></div></article>`;
+ }).join("");
+ const selected=products.filter(p=>cart[p.id]);const total=selected.reduce((sum,p)=>sum+p.price*cart[p.id],0);
+ $("cartCount").textContent=selected.reduce((n,p)=>n+cart[p.id],0)+" items";
+ $("cartContents").innerHTML=selected.length?selected.map(p=>`<div class="cart-line"><span>${p.name} × ${cart[p.id]}</span><strong>${money(p.price*cart[p.id])}</strong></div>`).join("")+`<div class="cart-line cart-total"><span>Cart total</span><strong>${money(total)}</strong></div>`:'<div class="cart-empty">Your cart is empty.<br>Add a Ready Now snack to get started.</div>';
+ $("checkout").textContent=`Proceed to 1-Tap UPI Pay (${money(total)})`;
+ $("checkout").disabled=!selected.length||orderPlaced||paymentBusy;
+}
+function renderBoard(){
+ const readyOnly=$("readyFilter").checked;
+ const shown=products.filter(p=>!readyOnly||p.status==="ready");
+ $("boardCount").textContent=`${shown.length} item${shown.length===1?"":"s"} listed · Live stock`;
+ $("boardGrid").innerHTML=shown.map(p=>{
+  const st=statusMeta(p.status);
+  return `<article class="board-item"><div><h3>${p.name}</h3><div style="margin-top:10px"><span class="pill ${st.cls}"><span class="dot"></span>${st.label}</span></div></div><div><div class="board-price">${money(p.price)}</div><div class="board-stock">Stock: ${stockText(p)}</div></div></article>`;
+ }).join("")||'<div class="cart-empty" style="grid-column:1/-1">No Ready Now items are available at this moment.</div>';
+}
+function renderStaff(){
+ $("staffStock").innerHTML=products.map(p=>{
+  const st=statusMeta(p.status);
+  return `<div class="staff-item"><div><div class="staff-name">${p.name}</div><div class="staff-desc">${money(p.price)} · ${stockText(p)} · <span class="pill ${st.cls}">${st.label}</span></div></div><div><label class="field-label" for="status-${p.id}">Availability</label><select id="status-${p.id}" onchange="changeStatus('${p.id}',this.value)"><option value="ready" ${p.status==="ready"?"selected":""}>Ready Now</option><option value="wait" ${p.status==="wait"?"selected":""}>5 Min Wait</option><option value="sold" ${p.status==="sold"?"selected":""}>Sold Out</option></select></div><div><span class="field-label">Adjust stock</span><div class="stock-stepper"><button type="button" aria-label="Decrease ${p.name} stock" onclick="adjustStock('${p.id}',-1)">−</button><strong>${p.stock===null?"∞":p.stock}</strong><button type="button" aria-label="Increase ${p.name} stock" onclick="adjustStock('${p.id}',1)">+</button></div></div></div>`;
+ }).join("");
+}
+function changeStatus(id,status){
+ const p=products.find(x=>x.id===id);p.status=status;
+ if(status==="sold"){p.stock=0;delete cart[id];}
+ else if(status==="ready"&&p.stock===0)p.stock=1;
+ renderAll();showToast(`${p.name}: ${statusMeta(status).label} · synced across views`);
+}
+function adjustStock(id,delta){
+ const p=products.find(x=>x.id===id);
+ if(p.stock===null){if(delta<0){showToast("Masala Tea stock is listed as Available");return;}p.stock=1;}
+ else p.stock=Math.max(0,p.stock+delta);
+ if(p.stock===0){p.status="sold";delete cart[id];}
+ else if(p.status==="sold")p.status="ready";
+ renderAll();showToast(`${p.name} stock updated`);
+}
+function renderToken(){
+ const ready=kitchenReady;
+ $("tokenStatus").textContent=ready?"● READY FOR PICKUP":"● PREPARING";
+ $("tokenStatus").className="token-status"+(ready?" ready":"");
+ $("pickupBanner").classList.toggle("ready",ready);
+ $("pickupBanner").innerHTML=ready?'<strong>READY FOR PICKUP — WINDOW 2 (RIGHT COUNTER)</strong><small>Skip Window 1 billing queue — show Token #A-14 directly at Window 2</small>':'<strong>ORDER CONFIRMED — PREPARING</strong><small>Your order will be called when it is ready. Please wait for the green status.</small>';
+ const steps=[...$("progress").children];
+ steps.forEach((step,index)=>{step.classList.remove("done","current");if(index===0|| (ready&&index===1))step.classList.add("done");if(index===1&&!ready)step.classList.add("current");if(index===2&&ready)step.classList.add("done","current");});
+ $("staffTokenStatus").textContent=ready?"● READY FOR PICKUP":"● PREPARING";
+ $("staffTokenStatus").className="token-status staff-token-status"+(ready?" ready":"");
+ $("staffPickupBanner").classList.toggle("ready",ready);
+ $("staffPickupBanner").innerHTML=ready?'<strong>READY FOR PICKUP — WINDOW 2 (RIGHT COUNTER)</strong><small>Skip Window 1 billing queue — show Token #A-14 directly at Window 2.</small>':'<strong>ORDER IN PREPARATION</strong><small>When ready, the student will be directed to Window 2 — Right Counter.</small>';
+ $("queueBadge").textContent=collected?"COLLECTED":ready?"READY":"PREPARING";
+ $("queueBadge").className="pill "+(collected||ready?"ready":"wait");
+}
+function renderAll(){renderStudentMenu();renderBoard();renderStaff();renderToken();}
+function completeCheckout(){
+ const selected=products.filter(p=>cart[p.id]);if(!selected.length)return;
+ for(const p of selected){if(p.status!=="ready"||(p.stock!==null&&p.stock<cart[p.id])){showToast(`${p.name} is no longer available in that quantity`);return;}}
+ selected.forEach(p=>{if(p.stock!==null)p.stock-=cart[p.id];if(p.stock===0)p.status="sold";});
+ const total=selected.reduce((sum,p)=>sum+p.price*cart[p.id],0);
+ $("receiptLines").innerHTML=selected.map(p=>`<div class="receipt-line"><span>${p.name} × ${cart[p.id]}</span><strong>${money(p.price*cart[p.id])}</strong></div>`).join("");
+ $("receiptTotal").textContent=money(total);
+ $("staffOrderSummary").textContent=selected.map(p=>`${p.name} × ${cart[p.id]}`).join(" · ")+" · "+money(total)+" paid via UPI (demo)";
+ orderPlaced=true;kitchenReady=false;collected=false;
+ $("tokenEmpty").classList.add("hidden");$("tokenDetails").classList.remove("hidden");
+ cart={};renderAll();goTo("student");$("tokenDetails").scrollIntoView({behavior:"smooth",block:"center"});
+}
+function pay(){
+ if(paymentBusy||orderPlaced)return;
+ const selected=products.filter(p=>cart[p.id]);if(!selected.length)return;
+ paymentBusy=true;$("checkout").disabled=true;
+ $("payOverlay").classList.add("show");$("payOverlay").setAttribute("aria-hidden","false");
+ $("payVisual").className="pay-spinner";$("payTitle").textContent="Connecting to UPI…";$("payMessage").textContent="Confirming your demo payment.";
+ setTimeout(()=>{
+  $("payVisual").className="pay-check";$("payVisual").textContent="✓";
+  $("payTitle").textContent="Payment successful";$("payMessage").textContent="Your demo UPI payment is confirmed. Creating Token #A-14…";
+  setTimeout(()=>{
+   $("payOverlay").classList.remove("show");$("payOverlay").setAttribute("aria-hidden","true");paymentBusy=false;completeCheckout();
+   showToast("UPI payment confirmed · Token #A-14 generated");
+  },380);
+ },800);
+}
+function toggleKitchen(){
+ if(!orderPlaced){showToast("Place a demo order first to activate Token #A-14");return;}
+ kitchenReady=!kitchenReady;collected=false;renderToken();
+ showToast(kitchenReady?"Token #A-14 ready · Window 2 Right Counter":"Token #A-14 returned to Preparing");
+}
+function markCollected(){
+ if(!orderPlaced){showToast("No Token #A-14 order in this demo session");return;}
+ if(!kitchenReady){showToast("Switch Token #A-14 to READY before collection");return;}
+ collected=true;renderToken();$("pickupBanner").innerHTML='<strong>ORDER COLLECTED — THANK YOU!</strong><small>Token #A-14 has been marked as collected.</small>';
+ showToast("Token #A-14 marked collected");
+}
+$("checkout").addEventListener("click",pay);
+$("readyFilter").addEventListener("change",renderBoard);
+$("studentToggle").addEventListener("click",toggleKitchen);
+$("staffToggle").addEventListener("click",toggleKitchen);
+$("markCollected").addEventListener("click",markCollected);
+renderAll();
+</script>
+</body>
+</html>
